@@ -1,0 +1,67 @@
+package com.spwarningsplugin;
+
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.EntityType;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
+
+public class MobDeathListener implements Listener {
+
+    private final spwarnings plugin;
+    private final Map<EntityType, String> mobPhrases;
+    private final String generalWarning;
+    private final DatabaseManager databaseManager;
+
+    public MobDeathListener(spwarnings plugin, DatabaseManager databaseManager) {
+        this.plugin = plugin;
+        this.databaseManager = databaseManager;
+        this.mobPhrases = loadMobPhrases();
+        this.generalWarning = loadGeneralWarning();
+    }
+
+    @EventHandler
+    public void onMobDeath(EntityDeathEvent event) {
+        if (event.getEntity().getKiller() != null && event.getEntity().getKiller().getPlayer() != null) {
+            UUID playerUUID = event.getEntity().getKiller().getPlayer().getUniqueId();
+            EntityType entityType = event.getEntityType();
+
+            // Send general warning about Gideon
+            event.getEntity().getKiller().getPlayer().sendMessage(generalWarning);
+
+            // Send specific Evil Ex message if available
+            String message = mobPhrases.get(entityType);
+            if (message != null) {
+                event.getEntity().getKiller().getPlayer().sendMessage(message);
+            }
+
+            // Increment kill count in database
+            databaseManager.incrementPlayerKills(playerUUID.toString());
+        }
+    }
+
+    private Map<EntityType, String> loadMobPhrases() {
+        Map<EntityType, String> mobPhrases = new HashMap<>();
+        FileConfiguration config = plugin.getConfig();
+        for (String mobType : config.getConfigurationSection("messages").getKeys(false)) {
+            if (!mobType.equals("general_warning")) {
+                EntityType entityType = EntityType.valueOf(mobType.toUpperCase());
+                String phrase = config.getString("messages." + mobType + ".phrase");
+                if (entityType != null && phrase != null) {
+                    mobPhrases.put(entityType, phrase);
+                }
+            }
+        }
+        return mobPhrases;
+    }
+
+    private String loadGeneralWarning() {
+        FileConfiguration config = plugin.getConfig();
+        return config.getString("messages.general_warning", "Beware, the big bad Gideon is coming!");
+    }
+}

@@ -1,0 +1,20 @@
+messages:
+  general_warning: "Beware, the big bad Gideon is coming!"
+  ZOMBIE:
+    ex_name: "Matthew Patel"
+    phrase: "You've defeated Matthew Patel, but beware of Gideon's wrath!"
+  SKELETON:
+    ex_name: "Lucas Lee"
+    phrase: "You've vanquished Lucas Lee, but Gideon's vengeance awaits!"
+  SPIDER:
+    ex_name: "Todd Ingram"
+    phrase: "You've triumphed over Todd Ingram, but Gideon's retribution looms!"
+  CREEPER:
+    ex_name: "Roxie Richter"
+    phrase: "You've blown away Roxie Richter, but Gideon's fury is yet to come!"
+  ENDERMAN:
+    ex_name: "Kyle & Ken Katayanagi"
+    phrase: "You've outwitted Kyle & Ken Katayanagi, but Gideon's malice is approaching!"
+  WITCH:
+    ex_name: "Ramona Flowers' evil exes"
+    phrase: "You've outlasted Ramona Flowers' evil exes, but Gideon's menace is imminent!"

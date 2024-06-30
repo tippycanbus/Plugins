@@ -1,0 +1,59 @@
+package com.yourpluginname;
+
+import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class DatabaseManager {
+
+    private final String url;
+
+    public DatabaseManager(String url) {
+        this.url = url;
+        initialize();
+    }
+
+    private void initialize() {
+        try {
+            Connection conn = DriverManager.getConnection(url);
+            conn.createStatement().executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS player_kills (" +
+                            "  player_uuid VARCHAR(36) PRIMARY KEY," +
+                            "  mob_kills INT DEFAULT 0" +
+                            ");"
+            );
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getPlayerKills(String playerUUID) {
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement stmt = conn.prepareStatement("SELECT mob_kills FROM player_kills WHERE player_uuid = ?")) {
+            stmt.setString(1, playerUUID);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("mob_kills");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public void incrementPlayerKills(String playerUUID) {
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement stmt = conn.prepareStatement(
+                     "INSERT INTO player_kills (player_uuid, mob_kills) VALUES (?, 1) " +
+                             "ON CONFLICT(player_uuid) DO UPDATE SET mob_kills = mob_kills + 1")) {
+            stmt.setString(1, playerUUID);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
